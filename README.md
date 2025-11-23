@@ -31,6 +31,8 @@ Headers à mettre sur toutes les requêtes JSON :
 - `Content-Type: application/ld+json`
 - `Authorization` = `Bearer {{token}}` (le test 1 enregistre `token` via `pm.collectionVariables.set("token", data.token);`. Si tu testes manuellement, copie le token retourné et remplace `{{token}}` par la chaîne réelle.)
 
+> Les valeurs `{{category_iri}}`, `{{media_iri}}`, etc. sont des **placeholders** Postman : après chaque création, le script `Tests` stocke l’IRI renvoyé (`pm.collectionVariables.set("category_iri", body["@id"]);`). Si tu rejoues les requêtes sans le runner ou avec un autre outil, remplace ces placeholders par les IRIs réels (ex. `/api/categories/3`) – ne laisse jamais `{{category_iri}}` tel quel.
+
 | # | Requête | Corps / Notes | Tests Postman |
 |---|---|---|---|
 | 1 | `POST {{base_url}}/api/login` | `{ "email": "admin@marketplace.test", "password": "change-me" }` | `pm.response.to.have.status(200); const data = pm.response.json(); pm.collectionVariables.set("token", data.token);` |
