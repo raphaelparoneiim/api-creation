@@ -66,5 +66,85 @@ class Product
         $this->createdDate = new \DateTimeImmutable();
     }
 
-    // getters/setters identiques
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(string $content): static
+    {
+        $this->content = $content;
+        return $this;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): static
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function isPublished(): ?bool
+    {
+        return $this->isPublished;
+    }
+
+    public function setIsPublished(bool $isPublished): static
+    {
+        $this->isPublished = $isPublished;
+        return $this;
+    }
+
+    public function getCreatedDate(): ?\DateTimeImmutable
+    {
+        return $this->createdDate;
+    }
+
+    public function setCreatedDate(\DateTimeImmutable $createdDate): static
+    {
+        $this->createdDate = $createdDate;
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
+        return $this;
+    }
 }
