@@ -1,6 +1,6 @@
 # Marketplace API – Guide Débutant
 
-Tu as ici une API Symfony 7.3/API Platform pour gérer des utilisateurs, catégories, médias et produits. Tout passe par JWT (`/api/login`). Ce README t’explique pas à pas comment installer, lancer et tester le projet **comme si tu n’avais jamais touché à API Platform**.
+API REST “marketplace” (Symfony 7.3 + API Platform) : les utilisateurs publient des produits rattachés à des catégories et médias. Toutes les routes `/api` sont sécurisées par JWT (`/api/login`). Ce guide t’accompagne étape par étape.
 
 ---
 
@@ -76,16 +76,18 @@ Pour le token : lance le test 1 (login), copie la valeur `token` du JSON de rép
 
 ### 4.2 Scénario complet
 
-| # | Requête | Corps | Script Tests |
-|---|---|---|---|
-| 1 | `POST http://127.0.0.1:8001/api/login` | ```json{ "email": "admin@marketplace.test", "password": "change-me" }``` | ```javascript pm.test("200", () => pm.response.to.have.status(200)); const data = pm.response.json(); pm.collectionVariables.set("token", data.token);``` |
-| 2 | `POST http://127.0.0.1:8001/api/users` | ```json{ "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" }``` | ```javascript pm.test("201", () => pm.response.to.have.status(201)); const body = pm.response.json(); pm.collectionVariables.set("user_iri", body["@id"]);``` |
-| 3 | `POST http://127.0.0.1:8001/api/categories` | ```json{ "title": "Informatique" }``` | ```javascript pm.test("201", () => pm.response.to.have.status(201)); const body = pm.response.json(); pm.collectionVariables.set("category_iri", body["@id"]);``` |
-| 4 | `POST http://127.0.0.1:8001/api/media` | ```json{ "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" }``` | ```javascript pm.test("201", () => pm.response.to.have.status(201)); pm.collectionVariables.set("media_iri", pm.response.json()["@id"]);``` |
-| 5 | `POST http://127.0.0.1:8001/api/products` | ```json{ "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" }``` | ```javascript pm.test("201", () => pm.response.to.have.status(201)); const product = pm.response.json(); pm.collectionVariables.set("product_iri", product["@id"]); pm.collectionVariables.set("product_id", product.id);``` |
-| 6 | `GET http://127.0.0.1:8001/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | (aucun body) | ```javascript pm.test("200", () => pm.response.to.have.status(200)); const list = pm.response.json()["hydra:member"]; pm.test("au moins 1", () => pm.expect(list.length).to.be.above(0));``` |
-| 7 | `PATCH {{product_iri}}` (URL de l’étape 5) | Header supplémentaire `Content-Type: application/merge-patch+json` ; body ```json{ "price": 1799.9 }``` | ```javascript pm.test("200", () => pm.response.to.have.status(200)); pm.test("prix 1799.9", () => pm.expect(pm.response.json().price).to.eql(1799.9));``` |
-| 8 | `DELETE {{product_iri}}` | (aucun body) | ```javascript pm.test("204", () => pm.response.to.have.status(204));``` |
+La colonne “Corps (sans variables Postman)” montre ce que tu dois envoyer si tu testes sans placeholders. En Collection Runner, tu peux réutiliser `{{category_iri}}`, etc.
+
+| # | Requête | Corps (sans variables Postman) |
+|---|---|---|
+| 1 | `POST http://127.0.0.1:8001/api/login` | ```json { "email": "admin@marketplace.test", "password": "change-me" } ``` |
+| 2 | `POST http://127.0.0.1:8001/api/users` | ```json { "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" } ``` |
+| 3 | `POST http://127.0.0.1:8001/api/categories` | ```json { "title": "Informatique" } ``` |
+| 4 | `POST http://127.0.0.1:8001/api/media` | ```json { "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" } ``` |
+| 5 | `POST http://127.0.0.1:8001/api/products` | ```json { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "/api/categories/1", "media": "/api/media/1" } ``` |
+| 6 | `GET http://127.0.0.1:8001/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — |
+| 7 | `PATCH {{product_iri}}` (géneré étape 5) | ```json { "price": 1799.9 } ``` (header `Content-Type: application/merge-patch+json`) |
+| 8 | `DELETE {{product_iri}}` | — |
 
 Quand tu lances le *Collection Runner*, tu dois voir **8/8 tests OK**. Si tu fais des tests à la main, pense à récupérer les valeurs `@id` dans la réponse JSON et à remplacer les `{{...}}` avant d’envoyer la requête suivante.
 
@@ -102,12 +104,5 @@ Quand tu lances le *Collection Runner*, tu dois voir **8/8 tests OK**. Si tu fai
 | `symfony server:start --port=8001 -d` / `symfony server:stop` | démarrer/arrêter le serveur |
 
 ---
-
-## 6. FAQ débutant
-
-- **401 “JWT Token not found”** : l’entête `Authorization: Bearer <token>` manque ou est mal écrit (pas d’espace). Relance `POST /api/login` et copie le nouveau token.
-- **415 “application/json non supporté”** : mets `Content-Type: application/ld+json`.
-- **“Invalid IRI {{category_iri}}”** : tu as oublié de remplacer le placeholder par la vraie valeur (`/api/categories/1`).
-- **Erreur SQLite NOT NULL** : assure-toi que la requête contient toutes les propriétés obligatoires (`title`, `content`, `price`, `isPublished`, etc.).
 
 Bon testing ! Une fois ces étapes validées, tu peux personnaliser les entités, ajouter des fixtures ou brancher un autre SGBD (PostgreSQL via Docker est déjà prêt dans `compose.yaml`). Debugge avec `symfony server:log` si besoin. Liste les produits sur http://127.0.0.1:8001/api pour vérifier que tout est OK. Bonne exploration 🚀
