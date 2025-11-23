@@ -26,11 +26,7 @@ Swagger UI : http://127.0.0.1:8001/api
 
 ## Tests Postman (essentiel)
 
-Configurer un environnement Postman :
-- `base_url` = `http://127.0.0.1:8001`
-- `token` = *vide* (sera alimenté)
-
-Chaque requête authentifiée doit avoir `Authorization: Bearer {{token}}`.
+Base URL à utiliser : http://127.0.0.1:8001. Chaque requête authentifiée doit avoir `Authorization: Bearer {{token}}`.
 
 | # | Requête | Corps / Notes | Tests Postman |
 |---|---|---|---|
