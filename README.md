@@ -26,7 +26,10 @@ Swagger UI : http://127.0.0.1:8001/api
 
 ## Tests Postman (essentiel)
 
-Base URL à utiliser : http://127.0.0.1:8001. Chaque requête authentifiée doit avoir `Authorization: Bearer {{token}}`.
+Base URL : http://127.0.0.1:8001  
+Headers à mettre sur toutes les requêtes JSON :
+- `Content-Type: application/json`
+- `Authorization` = `Bearer {{token}}` (le test 1 enregistre `token` via `pm.collectionVariables.set("token", data.token);`. Si tu testes manuellement, copie le token retourné et remplace `{{token}}` par la chaîne réelle.)
 
 | # | Requête | Corps / Notes | Tests Postman |
 |---|---|---|---|
