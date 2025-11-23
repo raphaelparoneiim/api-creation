@@ -2,6 +2,7 @@
 
 namespace App\State;
 
+use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\User;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -13,7 +14,7 @@ class UserPasswordHasherProcessor implements ProcessorInterface
         private UserPasswordHasherInterface $passwordHasher
     ) {}
 
-    public function process(mixed $data, array $context = []): void
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         if ($data instanceof User && $data->getPlainPassword()) {
             $data->setPassword(
@@ -21,6 +22,6 @@ class UserPasswordHasherProcessor implements ProcessorInterface
             );
         }
 
-        $this->persistProcessor->process($data, $context);
+        return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }
