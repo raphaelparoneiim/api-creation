@@ -13,6 +13,7 @@ use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ApiResource(
@@ -59,6 +60,11 @@ class Product
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[Groups(['product:read','product:write'])]
     private ?Media $media = null;
+
+    public function __construct()
+    {
+        $this->createdDate = new \DateTimeImmutable();
+    }
 
     // getters/setters identiques
 }
