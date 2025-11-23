@@ -76,18 +76,18 @@ Pour le token : lance le test 1 (login), copie la valeur `token` du JSON de rép
 
 ### 4.2 Scénario complet
 
-La colonne “Corps (sans variables Postman)” montre ce que tu dois envoyer si tu testes sans placeholders. En Collection Runner, tu peux réutiliser `{{category_iri}}`, etc.
+La colonne “Corps (avec variables Postman)” correspond aux requêtes utilisées dans la collection (les scripts `Tests` remplissent les variables). La colonne “Corps (sans variables Postman)” montre ce qu’il faut envoyer si tu testes manuellement.
 
-| # | Requête | Corps (sans variables Postman) |
-|---|---|---|
-| 1 | `POST http://127.0.0.1:8001/api/login` | ```json { "email": "admin@marketplace.test", "password": "change-me" } ``` |
-| 2 | `POST http://127.0.0.1:8001/api/users` | ```json { "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" } ``` |
-| 3 | `POST http://127.0.0.1:8001/api/categories` | ```json { "title": "Informatique" } ``` |
-| 4 | `POST http://127.0.0.1:8001/api/media` | ```json { "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" } ``` |
-| 5 | `POST http://127.0.0.1:8001/api/products` | ```json { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "/api/categories/1", "media": "/api/media/1" } ``` |
-| 6 | `GET http://127.0.0.1:8001/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — |
-| 7 | `PATCH {{product_iri}}` (géneré étape 5) | ```json { "price": 1799.9 } ``` (header `Content-Type: application/merge-patch+json`) |
-| 8 | `DELETE {{product_iri}}` | — |
+| # | Requête | Corps (avec variables Postman) | Corps (sans variables Postman) |
+|---|---|---|---|
+| 1 | `POST http://127.0.0.1:8001/api/login` | ```json { "email": "admin@marketplace.test", "password": "change-me" } ``` | même JSON |
+| 2 | `POST http://127.0.0.1:8001/api/users` | ```json { "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" } ``` | même JSON |
+| 3 | `POST http://127.0.0.1:8001/api/categories` | ```json { "title": "Informatique" } ``` | même JSON |
+| 4 | `POST http://127.0.0.1:8001/api/media` | ```json { "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" } ``` | même JSON |
+| 5 | `POST http://127.0.0.1:8001/api/products` | ```json { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" } ``` | ```json { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "/api/categories/1", "media": "/api/media/1" } ``` |
+| 6 | `GET http://127.0.0.1:8001/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
+| 7 | `PATCH {{product_iri}}` (généré étape 5) | ```json { "price": 1799.9 } ``` (header `Content-Type: application/merge-patch+json`) | même JSON mais URL = `/api/products/<id>` |
+| 8 | `DELETE {{product_iri}}` | — | URL = `/api/products/<id>` |
 
 Quand tu lances le *Collection Runner*, tu dois voir **8/8 tests OK**. Si tu fais des tests à la main, pense à récupérer les valeurs `@id` dans la réponse JSON et à remplacer les `{{...}}` avant d’envoyer la requête suivante.
 
