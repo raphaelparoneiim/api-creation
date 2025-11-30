@@ -80,13 +80,13 @@ La colonne “Corps (avec variables Postman)” correspond aux requêtes utilis�
 
 | # | Requête | Corps (avec variables Postman) | Corps (sans variables Postman, alternative simple mais tests pouvant être obsolètes dans les numéros) |
 |---|---|---|---|
-| 1 | `POST http://127.0.0.1:8000/api/login` | ```json { "email": "admin@marketplace.test", "password": "change-me" } ``` | même JSON |
-| 2 | `POST http://127.0.0.1:8000/api/users` | ```json { "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" } ``` | même JSON |
-| 3 | `POST http://127.0.0.1:8000/api/categories` | ```json { "title": "Informatique" } ``` | même JSON |
-| 4 | `POST http://127.0.0.1:8000/api/media` | ```json { "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" } ``` | même JSON |
-| 5 | `POST http://127.0.0.1:8000/api/products` | ```json { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" } ``` | ```json { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "/api/categories/1", "media": "/api/media/3" } ``` |
+| 1 | `POST http://127.0.0.1:8000/api/login` | ``` { "email": "admin@marketplace.test", "password": "change-me" } ``` | même JSON |
+| 2 | `POST http://127.0.0.1:8000/api/users` | ``` { "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" } ``` | même JSON |
+| 3 | `POST http://127.0.0.1:8000/api/categories` | ``` { "title": "Informatique" } ``` | même JSON |
+| 4 | `POST http://127.0.0.1:8000/api/media` | ``` { "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" } ``` | même JSON |
+| 5 | `POST http://127.0.0.1:8000/api/products` | ``` { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" } ``` | ``` { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "/api/categories/1", "media": "/api/media/3" } ``` |
 | 6 | `GET http://127.0.0.1:8000/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
-| 7 | `PATCH {{product_iri}}` (généré étape 5) | ```json { "price": 1799.9 } ``` (header `Content-Type: application/merge-patch+json`) | même JSON mais URL = `/api/products/<id>` |
+| 7 | `PATCH {{product_iri}}` (généré étape 5) | ``` { "price": 1799.9 } ``` (header `Content-Type: application/merge-patch+json`) | même JSON mais URL = `/api/products/<id>` |
 | 8 | `DELETE {{product_iri}}` | — | URL = `/api/products/<id>` |
 
 Quand tu lances le *Collection Runner*, tu dois voir **8/8 tests OK**. Si tu fais des tests à la main, pense à récupérer les valeurs `@id` dans la réponse JSON et à remplacer les `{{...}}` avant d’envoyer la requête suivante.
