@@ -56,14 +56,14 @@ Content-Type: application/ld+json
 
 | # | Requête | Corps (avec variables Postman) | Où récupérer la variable |
 |---|---------|--------------------------------|--------------------------|
-| 1 | POST `/api/login` | `{ "email": "admin@marketplace.test", "password": "change-me" }` | — |
-| 2 | POST `/api/users` | `{ "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" }` | — |
-| 3 | POST `/api/categories` | `{ "title": "Informatique" }` | `category_iri` = `@id` de la réponse (ex: `/api/categories/4`) 🏷️ |
-| 4 | POST `/api/media` | `{ "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" }` | `media_iri` = `@id` de la réponse (ex: `/api/media/3`) 🖼️ |
-| 5 | POST `/api/products` | `{ "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" }` | `product_iri` = `@id` de la réponse (ex: `/api/products/3`) 💻 |
-| 6 | GET `/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
-| 7 | PATCH `{{product_iri}}` | `{ "price": 1799.9 }` (header Content-Type: application/merge-patch+json) | utiliser `product_iri` récupéré à l’étape 5 ✏️ |
-| 8 | DELETE `{{product_iri}}` | — | utiliser `product_iri` récupéré à l’étape 5 ❌ |
+| 1 | POST `http://127.0.0.1:8000/api/login` | `{ "email": "admin@marketplace.test", "password": "change-me" }` | — |
+| 2 | POST `http://127.0.0.1:8000/api/users` | `{ "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" }` | — |
+| 3 | POST `http://127.0.0.1:8000/api/categories` | `{ "title": "Informatique" }` | `category_iri` = `@id` de la réponse (ex: `/api/categories/4`) 🏷️ |
+| 4 | POST `http://127.0.0.1:8000/api/media` | `{ "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" }` | `media_iri` = `@id` de la réponse (ex: `/api/media/3`) 🖼️ |
+| 5 | POST `http://127.0.0.1:8000/api/products` | `{ "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" }` | `product_iri` = `@id` de la réponse (ex: `/api/products/3`) 💻 |
+| 6 | GET `http://127.0.0.1:8000/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
+| 7 | PATCH `http://127.0.0.1:8000/{{product_iri}}` | `{ "price": 1799.9 }` (header Content-Type: application/merge-patch+json) | utiliser `product_iri` récupéré à l’étape 5 ✏️ |
+| 8 | DELETE `http://127.0.0.1:8000/{{product_iri}}` | — | utiliser `product_iri` récupéré à l’étape 5 ❌ |
 
 > **Explication des variables Postman** 🔍  
 > - `{{category_iri}}` : IRI de la catégorie créée (champ `@id` dans la réponse de POST /api/categories)  
