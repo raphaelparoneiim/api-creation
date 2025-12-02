@@ -4,7 +4,7 @@
 Les utilisateurs peuvent publier des produits rattachés à des **catégories** et des **médias**.  
 Toutes les routes `/api/*` sont sécurisées par **JWT** (`/api/login`). 😎
 
-❗ Lien vers la vidéo : ❗
+❗ Lien vers la vidéo : https://youtu.be/rTJ_j6zHpsA❗
 
 ---
 
@@ -58,9 +58,9 @@ Content-Type: application/ld+json
 |---|---------|--------------------------------|--------------------------|
 | 1 | POST `http://127.0.0.1:8000/api/login` | `{ "email": "admin@marketplace.test", "password": "change-me" }` | — |
 | 2 | POST `http://127.0.0.1:8000/api/users` | `{ "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" }` | — |
-| 3 | POST `http://127.0.0.1:8000/api/categories` | `{ "title": "Informatique" }` | `category_iri` = `@id` de la réponse (ex: `/api/categories/4`) 🏷️ |
-| 4 | POST `http://127.0.0.1:8000/api/media` | `{ "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" }` | `media_iri` = `@id` de la réponse (ex: `/api/media/3`) 🖼️ |
-| 5 | POST `http://127.0.0.1:8000/api/products` | `{ "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" }` | `product_iri` = `@id` de la réponse (ex: `/api/products/3`) 💻 |
+| 3 | POST `http://127.0.0.1:8000/api/categories` | `{ "title": "Informatique" }` | `category_iri` = `@id` de la réponse (exemple: `/api/categories/4`) 🏷️ |
+| 4 | POST `http://127.0.0.1:8000/api/media` | `{ "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" }` | `media_iri` = `@id` de la réponse (exemple: `/api/media/3`) 🖼️ |
+| 5 | POST `http://127.0.0.1:8000/api/products` | `{ "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" }` | `product_iri` = `@id` de la réponse (exemple: `/api/products/3`) 💻 |
 | 6 | GET `http://127.0.0.1:8000/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
 | 7 | PATCH `http://127.0.0.1:8000/{{product_iri}}` | `{ "price": 1799.9 }` (header Content-Type: application/merge-patch+json) | utiliser `product_iri` récupéré à l’étape 5 ✏️ |
 | 8 | DELETE `http://127.0.0.1:8000/{{product_iri}}` | — | utiliser `product_iri` récupéré à l’étape 5 ❌ |
