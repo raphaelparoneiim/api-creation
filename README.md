@@ -1,108 +1,90 @@
-# Marketplace API – Guide Débutant
+# 🚀 Marketplace API – Guide Débutant
 
-API REST “marketplace” (Symfony 7.3 + API Platform) : les utilisateurs publient des produits rattachés à des catégories et médias. Toutes les routes `/api` sont sécurisées par JWT (`/api/login`). Ce guide t’accompagne étape par étape.
+**Marketplace API** est une API REST développée en **PHP (Symfony 7.3 + API Platform)**.  
+Les utilisateurs peuvent publier des produits rattachés à des **catégories** et des **médias**.  
+Toutes les routes `/api/*` sont sécurisées par **JWT** (`/api/login`). 😎
+
+❗ Lien vers la vidéo : ❗
 
 ---
 
-## 1. Installation
+## 1️⃣ Installation
 
 ```bash
-git clone <repo_url> marketplace-api
-cd marketplace-api
-cp .env .env.local          # personnalise APP_SECRET, DATABASE_URL, etc.
-composer install
-php bin/console doctrine:database:create --if-not-exists
-php bin/console doctrine:migrations:migrate
-php bin/console lexik:jwt:generate-keypair --overwrite   # regenère les clés si besoin
+git clone <repo_url> marketplace-api  
+cd marketplace-api  
+cp .env .env.local          # personnalise APP_SECRET, DATABASE_URL, etc.  
+composer install  
+php bin/console doctrine:database:create --if-not-exists  
+php bin/console doctrine:migrations:migrate  
+php bin/console lexik:jwt:generate-keypair --overwrite   # régénère les clés si besoin
 ```
 
-### Créer l’utilisateur administrateur
-
-Les routes `/api/*` sont protégées ; il te faut un premier compte pour générer un JWT :
+### 👤 Créer l’utilisateur administrateur
 
 ```bash
-php bin/console security:hash-password "change-me" App\\Entity\\User
-# copie le hash retourné puis :
-php bin/console doctrine:query:sql "
-INSERT INTO user (email, roles, password, firstname, lastname)
-VALUES ('admin@marketplace.test', '[\"ROLE_ADMIN\"]', '<hash>', 'Admin', 'User');
+php bin/console security:hash-password "change-me" App\\Entity\\User  
+# copie le hash retourné puis :  
+php bin/console doctrine:query:sql "  
+INSERT INTO user (email, roles, password, firstname, lastname)  
+VALUES ('admin@marketplace.test', '[\"ROLE_ADMIN\"]', '<hash>', 'Admin', 'User');  
 "
 ```
 
 ---
 
-## 2. Lancer l’API
+## 2️⃣ Lancer l’API
 
-```bash
-symfony server:start
-```
+symfony server:start  
 
-- API docs : http://127.0.0.1:8000/api  
-- Pour arrêter : `symfony server:stop`
+- API docs : [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api) 📄  
+- Pour arrêter le serveur : symfony server:stop 🛑
 
 ---
 
-## 3. Entités exposées
+## 3️⃣ Tests Postman
 
-| Ressource | Endpoint | Remarques |
-| --- | --- | --- |
-| Auth | `POST /api/login` | Renvoie `{ token, firstname, ... }` |
-| User | `/api/users` | `plainPassword` est hashé automatiquement (processor) |
-| Category | `/api/categories` | CRUD + relation vers produits |
-| Media | `/api/media` | Sauvegarde `filePath`, `contentUrl`… |
-| Product | `/api/products` | Filtres par `title`, `price`, `isPublished`, `createdDate`, `media`… |
+### 🔑 Headers importants
+Toutes les requêtes doivent respecter ces headers :  
 
----
+Authorization: Bearer <token>  # mets un espace après Bearer  
+Content-Type: application/ld+json  
 
-## 4. Tests Postman détaillés
+- Pour obtenir `<token>` : lance la requête login (étape 1) et copie le token renvoyé. 📝
 
-**Important :** toutes les requêtes Postman doivent respecter ces headers :
+### 3.1 Scénario complet
 
-- `Authorization` = `Bearer <token>` (mets un espace après `Bearer`)
-- `Content-Type` = `application/ld+json`
+| # | Requête | Corps (avec variables Postman) | Où récupérer la variable |
+|---|---------|--------------------------------|--------------------------|
+| 1 | POST `/api/login` | `{ "email": "admin@marketplace.test", "password": "change-me" }` | — |
+| 2 | POST `/api/users` | `{ "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" }` | — |
+| 3 | POST `/api/categories` | `{ "title": "Informatique" }` | `category_iri` = `@id` de la réponse (ex: `/api/categories/4`) 🏷️ |
+| 4 | POST `/api/media` | `{ "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" }` | `media_iri` = `@id` de la réponse (ex: `/api/media/3`) 🖼️ |
+| 5 | POST `/api/products` | `{ "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" }` | `product_iri` = `@id` de la réponse (ex: `/api/products/3`) 💻 |
+| 6 | GET `/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
+| 7 | PATCH `{{product_iri}}` | `{ "price": 1799.9 }` (header Content-Type: application/merge-patch+json) | utiliser `product_iri` récupéré à l’étape 5 ✏️ |
+| 8 | DELETE `{{product_iri}}` | — | utiliser `product_iri` récupéré à l’étape 5 ❌ |
 
-Pour le token : lance le test 1 (login), copie la valeur `token` du JSON de réponse **ou** laisse le script Postman le stocker dans `token` (voir plus bas). Si tu fais des essais hors Postman (curl, HTTPie), remplace `<token>` par la chaîne exacte.
+> **Explication des variables Postman** 🔍  
+> - `{{category_iri}}` : IRI de la catégorie créée (champ `@id` dans la réponse de POST /api/categories)  
+> - `{{media_iri}}` : IRI du média créé (champ `@id` dans la réponse de POST /api/media)  
+> - `{{product_iri}}` : IRI du produit créé (champ `@id` dans la réponse de POST /api/products)  
 
-### 4.1 Préparer Postman
-
-1. Crée une collection “Marketplace API”.
-2. Ajoute chaque requête ci-dessous en utilisant **http://127.0.0.1:8000** (pas de variable).
-3. Dans l’onglet *Tests* de chaque requête, colle le script fourni pour enregistrer les IRIs/jetons.
-
-> À propos des `{{category_iri}}`, `{{media_iri}}`, etc.  
-> Ce sont des variables Postman. Quand une requête renvoie `"@id": "/api/categories/3"`, le script fait `pm.collectionVariables.set("category_iri", body["@id"]);`.  
-> **Si tu exécutes la collection avec le Runner**, tu peux conserver `{{category_iri}}` dans les requêtes suivantes.  
-> **Si tu testes manuellement (curl, interface Swagger)**, remplace-les **à la main** par l’IRI réel (ex. `/api/categories/3`). Ne les laisse jamais sous forme `{{...}}`.
-
-### 4.2 Scénario complet
-
-La colonne “Corps (avec variables Postman)” correspond aux requêtes utilisées dans la collection (les scripts `Tests` remplissent les variables). La colonne “Corps (sans variables Postman)” montre ce qu’il faut envoyer si tu testes manuellement.
-
-| # | Requête | Corps (avec variables Postman) | Corps (sans variables Postman, alternative simple mais tests pouvant être obsolètes dans les numéros) |
-|---|---|---|---|
-| 1 | `POST http://127.0.0.1:8000/api/login` | ``` { "email": "admin@marketplace.test", "password": "change-me" } ``` | même JSON |
-| 2 | `POST http://127.0.0.1:8000/api/users` | ``` { "email": "buyer@marketplace.test", "firstname": "Buyer", "lastname": "Test", "plainPassword": "Password123!" } ``` | même JSON |
-| 3 | `POST http://127.0.0.1:8000/api/categories` | ``` { "title": "Informatique" } ``` | même JSON |
-| 4 | `POST http://127.0.0.1:8000/api/media` | ``` { "filePath": "uploads/laptop.jpg", "contentUrl": "https://picsum.photos/seed/laptop/600/400" } ``` | même JSON |
-| 5 | `POST http://127.0.0.1:8000/api/products` | ``` { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "{{category_iri}}", "media": "{{media_iri}}" } ``` | ``` { "title": "Laptop Pro 14”", "content": "16 Go RAM, 1 To SSD", "price": 1899.9, "isPublished": true, "category": "/api/categories/1", "media": "/api/media/3" } ``` |
-| 6 | `GET http://127.0.0.1:8000/api/products?title=Laptop&isPublished=true&price[gt]=1000&media[exists]=1` | — | — |
-| 7 | `PATCH {{product_iri}}` (généré étape 5) | ``` { "price": 1799.9 } ``` (header `Content-Type: application/merge-patch+json`) | même JSON mais URL = `/api/products/<id>` |
-| 8 | `DELETE {{product_iri}}` | — | URL = `/api/products/<id>` |
-
-Quand tu lances le *Collection Runner*, tu dois voir **8/8 tests OK**. Si tu fais des tests à la main, pense à récupérer les valeurs `@id` dans la réponse JSON et à remplacer les `{{...}}` avant d’envoyer la requête suivante.
+> ⚠️ Si tu testes manuellement (Swagger ou curl), remplace les `{{...}}` par les valeurs exactes récupérées dans les réponses JSON. 🛠️
 
 ---
 
-## 5. Commandes utiles
+## 4️⃣ Commandes utiles
 
 | Commande | Description |
-| --- | --- |
-| `composer install` | installe les dépendances |
-| `php bin/console doctrine:migrations:migrate` | applique les migrations |
-| `php bin/console doctrine:migrations:diff` | génère une nouvelle migration |
-| `php bin/console lexik:jwt:generate-keypair --overwrite` | régénère les clés JWT |
-| `symfony server:start` / `symfony server:stop` | démarrer/arrêter le serveur |
+|----------|------------|
+| composer install | Installe les dépendances 📦 |
+| php bin/console doctrine:migrations:migrate | Applique les migrations 🔄 |
+| php bin/console doctrine:migrations:diff | Génère une nouvelle migration ✨ |
+| php bin/console lexik:jwt:generate-keypair --overwrite | Régénère les clés JWT 🔑 |
+| symfony server:start / symfony server:stop | Démarrer / arrêter le serveur ▶️ / 🛑 |
 
 ---
 
-Bon testing ! Une fois ces étapes validées, tu peux personnaliser les entités, ajouter des fixtures ou brancher un autre SGBD (PostgreSQL via Docker est déjà prêt dans `compose.yaml`). Debugge avec `symfony server:log` si besoin. Liste les produits sur http://127.0.0.1:8000/api pour vérifier que tout est OK. Bonne exploration 🚀
+Bonne exploration 🚀  
+Liste les produits sur [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api) pour vérifier que tout fonctionne. 🎉
